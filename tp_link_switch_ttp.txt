@@ -1,0 +1,16 @@
+<group name='vlans.{{vlan}}'>
+vlan {{vlan_num}}
+ name "{{vlan}}"
+</group>
+
+<vars>
+vlans = "unrange(rangechar='-', joinchar=',') | split(',') | join(',') | joinmatches(',')"
+</vars>
+
+<group name='interface.{{interface_name}}.{{interface_number}}'>
+interface {{interface_name}} {{interface_number}}
+  description "{{description}}"
+  switchport general allowed vlan {{trunk_vlans | | chain('vlans') }} tagged
+  switchport pvid {{native_vlan}}
+  switchport general allowed vlan {{access_vlan}} untagged
+</group>
