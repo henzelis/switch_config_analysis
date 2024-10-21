@@ -14,18 +14,18 @@ config_path_list = [r'D:\GoogleDrive\Мій диск\Alesta\NAZK\For_Alesta_LAN\
                     r'D:\GoogleDrive\Мій диск\Alesta\NAZK\For_Alesta_LAN\Кінозал',
                     r'D:\GoogleDrive\Мій диск\Alesta\NAZK\For_Alesta_LAN']
 
-for conf_dir in config_path_list:
-    for file_path in glob.glob(os.path.join(conf_dir, '*.txt')):
-        file_name = os.path.split(file_path)[-1]
-        json_file_path = file_path.replace('.txt', '.json')
-        # if "TL-33_11.33.txt" in file_name:
-        #     print("here it is!")
-        if "HP" in file_name:
-            template_path = 'hp_switch_ttp.txt'
-        elif "TL" in file_name:
-            template_path = 'tp_link_switch_ttp.txt'
-        convert(template_path, file_path, json_file_path)
-        print(f"File created{json_file_path}")
+# for conf_dir in config_path_list:
+#     for file_path in glob.glob(os.path.join(conf_dir, '*.txt')):
+#         file_name = os.path.split(file_path)[-1]
+#         json_file_path = file_path.replace('.txt', '.json')
+#         # if "TL-33_11.33.txt" in file_name:
+#         #     print("here it is!")
+#         if "HP" in file_name:
+#             template_path = 'hp_switch_ttp.txt'
+#         elif "TL" in file_name:
+#             template_path = 'tp_link_switch_ttp.txt'
+#         convert(template_path, file_path, json_file_path)
+#         print(f"File created{json_file_path}")
 
 access_vlans_dict = {}
 for conf_dir in config_path_list:
@@ -35,13 +35,18 @@ for conf_dir in config_path_list:
         with open(file_path) as file:
             data = MyDict(json.loads(file.read()))
             access_vlans_list = []
+            dual_access_vlans_list = []
             for interface in data.interfaces:
                 access_vlan = data.interfaces[interface].get('access_vlan')
                 print(access_vlan)
                 if access_vlan is not None:
-                    access_vlans_list.append(int(access_vlan))
+                    try:
+                        access_vlans_list.append(int(access_vlan))
+                    except Exception as e:
+                        dual_access_vlans_list.append(access_vlan)
             access_vlans_list = list(set(access_vlans_list))
-            access_vlans_dict[hostname] = access_vlans_list
+            dual_access_vlans_list = list(set(dual_access_vlans_list))
+            access_vlans_dict[hostname] = {'access_vlans': access_vlans_list, 'dual_access_vlans': dual_access_vlans_list}
 print(access_vlans_dict)
 
 
