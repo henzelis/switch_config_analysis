@@ -1,16 +1,18 @@
+<vars>
+vlans = "unrange(rangechar='-', joinchar=',') | split(',') | join(',') | joinmatches(',')"
+</vars>
+
 <group name='vlans.{{vlan}}'>
 vlan {{vlan_num}}
  name "{{vlan}}"
 </group>
 
-<vars>
-vlans = "unrange(rangechar='-', joinchar=',') | split(',') | join(',') | joinmatches(',')"
-</vars>
-
-<group name='interface.{{interface_name}}.{{interface_number}}'>
-interface {{interface_name}} {{interface_number}}
+<group name="interfaces.{{interface_name}}">
+interface {{ interface_name  | re("(\S+\s\S+)") | replace(" ", "") }}
   description "{{description}}"
-  switchport general allowed vlan {{trunk_vlans | | chain('vlans') }} tagged
+  switchport mode {{port_mode}}
+  switchport general allowed vlan {{trunk_vlans | | chain('vlans') | split(',') }} tagged
+  switchport trunk allowed vlan {{trunk_vlans | | chain('vlans') | split(',') }}
   switchport pvid {{native_vlan}}
   switchport general allowed vlan {{access_vlan}} untagged
 </group>
