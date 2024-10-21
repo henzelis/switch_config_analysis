@@ -1,0 +1,18 @@
+<vars>
+vlans = "unrange(rangechar='-', joinchar=',') | split(',') | join(',') | joinmatches(',')"
+</vars>
+
+<group name="sysinfo">
+ sysname {{hostname}} ({{ version | re("([\d\.]+)") }})
+</group>
+
+<group name='interfaces.{{interface_name}}'>
+interface {{interface_name}}
+ port hybrid vlan {{trunk_vlans | re("([\d\s]+)") | split() }} tagged
+ port hybrid vlan {{access_vlan}} untagged
+ port hybrid pvid vlan {{native_vlan}}
+ port link-type {{link_type}}
+ port trunk permit vlan {{ trunk_vlans | re("([\d\s]+(?: to [\d]+)?(?:,\s)?)+") | replace(" to ", "-") | replace(" ", ",") | chain('vlans') | split(',') }}
+ port trunk pvid vlan {{ native_vlan }}
+ combo enable {{ combo_type }}
+</group>
